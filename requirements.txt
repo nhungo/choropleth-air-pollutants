@@ -1,6 +1,5 @@
 certifi==2019.6.16
 chardet==3.0.4
-Click==7.0
 Brotli==1.0.9
 click==7.1.2
 dash==1.19.0
