@@ -23,11 +23,17 @@ fig = px.choropleth(df, geojson=counties, locations='fips_code', color='avg_aqi'
                         color_continuous_scale="matter",
                         scope="usa",
                         range_color= (0,round(df['avg_aqi'].max())),
-                        hover_data=['county_name','state_name', 'avg_aqi'],
-                        labels={'avg_aqi': 'AQI','state_name':'State',}
+                        #hover_data=['county_name','state_name', 'avg_aqi'],
+                        hover_data = {'fips_code':False,
+                                      'county_name':True,
+                                      'state_name':True,
+                                      'avg_aqi': ':.0f',
+                                      'reliability':':.0%'},
+                        labels={'avg_aqi': 'AQI','state_name':'state','county_name':'county'}
                         )
-fig.update_layout(height = 650,
-                  margin ={"r":0,"t":0,"l":0,"b":0})
+fig.update_layout(height = 800,
+                  margin ={"r":0,"t":0,"l":0,"b":0}
+                      )
 
 # App layout
 app.layout = html.Div([
