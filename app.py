@@ -14,7 +14,7 @@ server = app.server
 
 dtype_dic= {'fips_code': str,
             'state_fips': str}
-df = pd.read_csv("choropleth_data.csv", dtype=dtype_dic)
+df = pd.read_csv("data/choropleth_data.csv", dtype=dtype_dic)
 
 with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
     counties = json.load(response)
