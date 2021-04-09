@@ -1,5 +1,5 @@
 click==7.1.1
-dash==1.7.0
+dash==1.12.0
 dash-bootstrap-components==0.7.2
 dash-core-components==1.15.0
 dash-html-components==1.1.2
