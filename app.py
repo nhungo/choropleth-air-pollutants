@@ -434,6 +434,8 @@ def update_education(topic):
     elif topic == 'PM2.5 - Local Conditions':
         return text_pm
     
+    return topic
+    
    
 
 
