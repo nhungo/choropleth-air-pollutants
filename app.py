@@ -300,7 +300,7 @@ def update_graph(choropleth_click_data, dropdown_data):
 
 # Callback for education option    
 @app.callback(
-    [Output(component_id='educate_me', component_property='children')],
+    Output(component_id='educate_me', component_property='children'),
     [Input(component_id='education', component_property='value')]
 )  
 def update_education(topic):
