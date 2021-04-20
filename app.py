@@ -16,13 +16,13 @@ server = app.server
 # Choropleth data
 dtype_dic= {'fips_code': str,
             'state_fips': str}
-df_choro = pd.read_csv("choropleth_data.csv", dtype=dtype_dic)
+df_choro = pd.read_csv("data/choropleth_data.csv", dtype=dtype_dic)
 
 # Supplementary visualizations data
-df_supp = pd.read_csv("supplementary_viz.csv")
+df_supp = pd.read_csv("data/supplementary_viz.csv")
 
 # Recommendations data
-df_rec2022 = pd.read_csv("recommendations_2022.csv")
+df_rec2022 = pd.read_csv("data/recommendations_2022.csv")
 
 # Data from dropdown menu
 df_fips_county = df_supp.groupby(['fips_code','county_name','state_name'],as_index = False).count()[["fips_code","county_name",'state_name']]
