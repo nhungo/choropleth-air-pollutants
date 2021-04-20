@@ -1,12 +1,8 @@
-# from jupyter_dash import JupyterDash ## Change to dash
 import dash  # (version 1.12.0)
-
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
 import plotly.express as px
 from urllib.request import urlopen
 import json
@@ -14,19 +10,19 @@ import json
 # Create an app
 app = dash.Dash(__name__)
 server = app.server
+
 ##### Loading and preparing data #####
 
 # Choropleth data
 dtype_dic= {'fips_code': str,
             'state_fips': str}
-df_choro = pd.read_csv("data/choropleth_data.csv", dtype=dtype_dic)
+df_choro = pd.read_csv("choropleth_data.csv", dtype=dtype_dic)
 
 # Supplementary visualizations data
-df_supp = pd.read_csv("data/supplementary_viz.csv")
+df_supp = pd.read_csv("supplementary_viz.csv")
 
 # Recommendations data
-#df_rec2021 = pd.read_csv("recommendations_2021.csv")
-df_rec2022 = pd.read_csv("data/recommendations_2022.csv")
+df_rec2022 = pd.read_csv("recommendations_2022.csv")
 
 # Data from dropdown menu
 df_fips_county = df_supp.groupby(['fips_code','county_name','state_name'],as_index = False).count()[["fips_code","county_name",'state_name']]
@@ -57,21 +53,20 @@ fig_choro = px.choropleth(df_choro, geojson=counties, locations='fips_code', col
                         custom_data = ['county_name','state_name','reliability']
                         )
 fig_choro.update_layout(height = 500, margin ={"r":0,"t":0,"l":0,"b":0})
-#fig_choro.update_traces(colorbar_xanchor='left', selector=dict(type='choropleth'))
 fig_choro.update_traces(hovertemplate= "%{customdata[0]}, %{customdata[1]}<br>Average AQI: %{z:.2f} <br>Reliability Score: " + '%{customdata[2]:.0%}', selector=dict(type='choropleth'))
 
-# fig_choro.update_traces(hovertemplate="Average AQI:"+ hover_data['avg_aqi'] +"<br>", selector=dict(type='choropleth'))
 
 # App layout
 app.layout = html.Div([
+    # Title
     html.H1("Hazardous Air Pollutants",style={'text-align': 'center','font-family': 'arial'}),
     html.P("A Recommendation System for New Homeowners based on Air Quality Index (AQI) Level", 
             style={'text-align': 'center', 'font-family': 'courier new', 'margin-bottom':'50px', 'font-size':'16pt'}) ,
     html.Div(dcc.Graph(id='choropleth', figure=fig_choro), style = {'width': '60%','padding-left': '20%','padding-right':'20%'}),
-#     html.Div(dcc.Graph(id='choropleth', figure=fig_choro), style = {'margin-left': '10%','margin-right':'5%'}),
     
     html.Br(),
     
+    # Dropdown menu
     html.Div([
     
         html.Div(
@@ -91,10 +86,13 @@ app.layout = html.Div([
         
     ], style = {"text-align":"center"}),
     
+    # Recommendations text box
     html.Div(id = "recommendation"),
     
+    # Title for graphs
     html.H2(id = "current_location"),
     
+    # Graphs (Historical and Forecast)
     html.Div(id = 'trend_graphs', 
              children = [ 
                  html.Div(
@@ -120,6 +118,7 @@ app.layout = html.Div([
              ]
     ),
     
+    # Educational Component Selection
     html.H1(children="What would you like to learn about?", 
              style={
                     "font-family":"arial", 
@@ -152,12 +151,9 @@ app.layout = html.Div([
         labelStyle={'display': 'inline-block','padding':'10px', "font-family": "arial", "font-size":"large",
                    "padding-bottom":"30px"},
         style = {'text-align':'center'}
-#        "background-color":" rgb(205, 223, 247, 0.5)","width":"70%",
-#                 "margin-left":"auto", "margin-right":"auto","padding-left":"20px",
-#                 "padding-right":"20px","padding-top":"20px"}
     ),
 
-    
+    # Educational Component Information
     html.Div(id='educate_me')
     
     ])
@@ -185,6 +181,7 @@ def update_graph(choropleth_click_data, dropdown_data):
         
     else:
          
+        # Find out if choropleth or dropdown was triggered
         triggered_id = dash.callback_context.triggered[0]['prop_id'].split('.')[0]
 
         if(triggered_id == 'choropleth'):
@@ -199,6 +196,7 @@ def update_graph(choropleth_click_data, dropdown_data):
             state_name = df_choro.loc[pd.to_numeric(df_choro["fips_code"]) == county_fips,"state_name"].to_string(index = False)
             county_aqi = round(df_choro.loc[pd.to_numeric(df_choro["fips_code"]) == county_fips,"avg_aqi"],2).to_string(index = False).strip()
     
+    # Store selected county
     dff = df_supp[df_supp["fips_code"]==county_fips].copy()
     dff = dff[dff['date'] >= 2015]
     
@@ -255,13 +253,12 @@ def update_graph(choropleth_click_data, dropdown_data):
     fig_pm = fig_pm.update_xaxes(title_text="Year", tickvals=[2015,2016,2017,2018,2019,2020,2021,2022])
     fig_pm = fig_pm.update_yaxes(title_text="Average AQI")
 
-#    rec_county2021 = df_rec2021.loc[df_rec2021["source_fips"]==county_fips,"rec_county_name"].to_string(index = False)
-#    rec_aqi2021 = df_rec2021.loc[df_rec2021["source_fips"]==county_fips,"rec_avg_aqi"].to_string(index = False)
-#    selected_aqi2022 = df_rec2022.loc[df_rec2022["adj_fips"]==county_fips,"rec_avg_aqi"]
+    # Find recommended county based on selection
     rec_county2022 = df_rec2022.loc[df_rec2022["source_fips"]==county_fips,"rec_county_name"].to_string(index = False)
     rec_aqi2022 = df_rec2022.loc[df_rec2022["source_fips"]==county_fips,"rec_avg_aqi"]
     rec_aqi2022 = round(rec_aqi2022,2).to_string(index = False)
 
+    # Return text for recommendation
     if rec_county2022 == county_name:
         recommendation_text = html.Div([
             html.H2("Recommendation"),
@@ -278,13 +275,7 @@ def update_graph(choropleth_click_data, dropdown_data):
             html.Strong(county_name),
             " in ",
             html.Strong(state_name),
-    #        " with an average AQI of ",
-    #        selected_aqi2022,
             ", we recommend that you also consider its neighbouring county, ",
-    #         html.Strong(rec_county2021),
-    #         " which is forecasted to have an average AQI of ",
-    #         rec_aqi2021,
-    #         " in 2021 or ",
             html.Strong(rec_county2022),
             ", which is forecasted to have a lower average AQI of ",
             rec_aqi2022,
@@ -292,7 +283,6 @@ def update_graph(choropleth_click_data, dropdown_data):
             ])
     
     current_location = "Historical Trends and Forecasts for " + county_name + ", " + state_name
-
     
     return fig_co, fig_oz, fig_no2, fig_so2, fig_pm, recommendation_text, current_location
 
@@ -421,6 +411,7 @@ def update_education(topic):
         
     ])
     
+    # Return corresponding text based on selection
     if topic == 'AQI Values':
         return text_aqi
     elif topic == 'Carbon monoxide':
@@ -433,12 +424,9 @@ def update_education(topic):
         return text_so
     elif topic == 'PM2.5 - Local Conditions':
         return text_pm
-    
+
     return topic
-    
-   
-
-
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
+
